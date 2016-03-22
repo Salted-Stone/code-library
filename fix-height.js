@@ -1,6 +1,5 @@
 < script src = "https://cdn.jsdelivr.net/g/slidesjs@3.0.4,handlebarsjs@4.0.5" > < /script>
 
-
 <script>
   function fixheight(needsReset) {
     var newHeight = 0;
@@ -34,6 +33,3 @@ $(window).resize(function() {
   }
 });
 </script>
-
-< script src = "{{ get_public_template_url("
-custom / page / Saltedstone_Theme / functions.js ") }}" > < /script>
