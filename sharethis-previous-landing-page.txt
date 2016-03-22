@@ -1,0 +1,22 @@
+// HUBL MODULE
+
+{% text "landing_page_title" label="Landing Page Title", value="Previous Landing Page Title", export_to_template_context=True %}
+{% text "landing_page_url" label="Landing Page URL", value="Previous Landing Page URL", export_to_template_context=True %}
+
+{% set theTitle = widget_data.landing_page_title.value %}
+{% set theUrl = widget_data.landing_page_url.value %}
+
+
+// CUSTOM HTML
+
+<div class="shareThis">
+  <div class="share-this-text">Share this offer:</div>
+  <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="{{ theUrl }}" addthis:title="{{ theTitle }}">
+    <a class="addthis_button_linkedin"><i class="fa fa-linkedin"></i></a>
+    <a class="addthis_button_facebook"><i class="fa fa-facebook"></i></a>
+    <a class="addthis_button_twitter"><i class="fa fa-twitter"></i></a>
+    <a class="addthis_button_google_plusone_share"><i class="fa fa-google-plus"></i></a>
+  </div>
+</div>
+
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5307d2920668b7c8"></script>
