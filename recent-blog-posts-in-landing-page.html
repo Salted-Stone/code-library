@@ -43,3 +43,30 @@ $(document).ready(function(){
         </div>
     {% endfor %}
 </div>
+
+// OR AS AN UNORDERED LIST
+<div class="ty-recent-post-container">
+  <ul>
+    {% set topic_posts = blog_recent_posts(3977448190, 99)  %}
+    {% for topic_post in topic_posts %}
+        {% set resource_type = topic_post.widgets.resource_type.body.value %}
+        {% set customURL = topic_post.widgets.url.body.value %}
+        {% set desc = topic_post.widgets.description.body.value %}
+        <li>
+          <div class="ty-recent-posts">
+              <a href="{{ customURL }}">
+                  <div class="post-featured-image"><img src="{{ topic_post.featured_image }}"></div>
+              </a>
+              <div class="post-type">{{ resource_type }}</div>
+              <a href="{{ customURL }}">
+                  <div class="post-title">{{ topic_post.name }}</div>
+              </a>
+              <div class="post-description">{{ desc }}</div>
+              <a href="{{ customURL }}">
+                  <div class="learn-more-container"><span class="learn-more">Learn More</span>&#8594;</div>
+              </a>
+          </div>
+        </li>
+    {% endfor %}
+  </ul>
+</div>
