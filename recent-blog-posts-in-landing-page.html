@@ -1,0 +1,39 @@
+// HEAD
+<script>
+$(document).ready(function(){
+	var hasVideo = false;
+	var hasCase = false;
+	var counter = 1;
+
+ 	$('.post-type').each(function(){
+		if( $(this).text() == "Videos" ){
+			if( hasVideo == false){ $(this).parent().css('display', 'inline-block'); }
+			if( counter >= 2 ) { hasVideo = true; }
+			counter++;
+		}
+		else if( $(this).text() == "Case-Studies" ){
+			if( hasCase == false){ $(this).parent().css('display', 'inline-block'); }
+			hasCase = true;
+		}
+	});
+
+});
+</script>
+
+// HUBL TEMPLATE
+<div class="ty-recent-post-container">
+    {% set topic_posts = blog_recent_posts(3977448190, 99)  %}
+    {% for topic_post in topic_posts %}
+        {% set resource_type = topic_post.widgets.resource_type.body.value %}
+        {% set customURL = topic_post.widgets.url.body.value %}
+        <div class="ty-recent-posts">
+            <a href="http://something.com/{{ topic_post.slug }}">
+                <div class="post-featured-image"><img src="{{ topic_post.featured_image }}"></div>
+            </a>
+            <div class="post-type">{{ resource_type }}</div>
+            <a href="http://something.com/{{ topic_post.slug }}">
+                <div class="post-title">{{ topic_post.name }}</div>
+            </a>
+        </div>
+    {% endfor %}
+</div>
