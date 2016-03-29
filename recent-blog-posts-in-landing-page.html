@@ -26,13 +26,19 @@ $(document).ready(function(){
     {% for topic_post in topic_posts %}
         {% set resource_type = topic_post.widgets.resource_type.body.value %}
         {% set customURL = topic_post.widgets.url.body.value %}
+        {% set desc = topic_post.widgets.description.body.value %}
         <div class="ty-recent-posts">
-            <a href="http://something.com/{{ topic_post.slug }}">
+            <!-- a href="http://something.com/{{ topic_post.slug }}"> -->
+            <a href="{{ customURL }}">
                 <div class="post-featured-image"><img src="{{ topic_post.featured_image }}"></div>
             </a>
             <div class="post-type">{{ resource_type }}</div>
-            <a href="http://something.com/{{ topic_post.slug }}">
+            <a href="{{ customURL }}">
                 <div class="post-title">{{ topic_post.name }}</div>
+            </a>
+            <div class="post-description">{{ desc }}</div>
+            <a href="{{ customURL }}">
+                <div class="learn-more-container"><span class="learn-more">Learn More</span>&#8594;</div>
             </a>
         </div>
     {% endfor %}
