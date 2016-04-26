@@ -1,0 +1,12 @@
+{# Create the topic drop down list #}
+{% set my_topics = blog_topics(group.id, 500) %}
+<h2 class="sort-by-text">Sort by</h2>
+<select onchange="if (this.value) window.location.href=this.value">
+    {% for item in my_topics %}
+        {% if item.slug == topic %}
+            <option selected="selected" value="{{ group.absolute_url }}/topic/{{item.slug}}">{{ item }}</option>
+        {% else %}
+            <option value="{{ group.absolute_url }}/topic/{{item.slug}}">{{ item }}</option>
+        {% endif %}
+    {% endfor %}
+</select>
