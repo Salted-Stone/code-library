@@ -1,0 +1,25 @@
+// HUBL TEMPLATE
+
+{% text "cta_image_url" label="Tear Away Image URL", value="http://www.medschooltutors.com/hubfs/VideoTear.gif", export_to_template_context=True %}
+{% text "cta_image_url_hover" label="Tear Away Image (Hover State) URL", value="http://www.medschooltutors.com/hubfs/VideoTearHover.gif", export_to_template_context=True %}
+{% text "cta_video_url" label="Tear Away Video URL", value="https://medschooltutors.wistia.com/medias/9askk47m5j", export_to_template_context=True %}
+
+<div class="tear-away-cta" style="background: url({{ widget_data.cta_image_url.value }}) no-repeat;"></div>
+<style>
+ .tear-away-cta { display: none; position: fixed; bottom: 0; left: 0; width: 370px; height: 252px; cursor: pointer; }
+ .tear-away-cta:hover { background: url({{ widget_data.cta_image_url_hover.value }}) no-repeat !important; }
+ div#colorbox { z-index: 10; }
+</style>
+
+<script src="http://www.medschooltutors.com/hubfs/js/jquery.colorbox-min.js"></script>
+
+<script>
+$(document).ready(function(){
+  $('.tear-away-cta').colorbox({
+    iframe      : true,
+    innerWidth  : 425,
+    innerHeight : 344,
+    href        : "{{ widget_data.cta_video_url.value }}"
+  });
+});
+</script>
