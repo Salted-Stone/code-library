@@ -12,3 +12,11 @@ $('a[href*=#]').on('click', function(event){
         window.location.href = href;
     }
 });
+
+
+// or this
+
+$('a[href*=#]').on('click', function(event){
+    event.preventDefault();
+    $('html,body').animate({scrollTop:$(this.hash).offset().top}, 500);
+});
