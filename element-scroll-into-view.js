@@ -13,11 +13,13 @@ $(window).scroll(function() {
       $('.faq-pagination a').removeClass('active');
       $('.faq-pagination a:nth-child(1)').addClass('active');
    }
-   for(i = 1; i <= numberOfSlides; i++){
-      var target = $('#row'+i);
-      if( isScrolledIntoView(target) ){
-         $('.faq-pagination a').removeClass('active');
-         $('.faq-pagination a:nth-child('+i+')').addClass('active');
+   else{
+      for(i = 1; i <= numberOfSlides; i++){
+         var target = $('#row'+i);
+         if( isScrolledIntoView(target) ){
+            $('.faq-pagination a').removeClass('active');
+            $('.faq-pagination a:nth-child('+i+')').addClass('active');
+         }
       }
    }
 });
