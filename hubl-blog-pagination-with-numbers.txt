@@ -1,0 +1,41 @@
+{% macro render_pagination_link( pageNum, isActive ) %}
+    <li{% if isActive == 'true' %} class="active"{% endif %}><a href="{{ blog_page_link(pageNum) }}">{{ pageNum }}</a></li>
+{% endmacro %}
+
+{% set total_pages = contents.total_page_count %}
+{% set more_pages = total_pages - current_page_num %}
+<div class="blog-pagination">
+    {% if total_pages > 1 %}
+        <nav>
+            <ul class="pagination">
+                {# Only show the prev button for pages > 1 #}
+                {% if current_page_num > 1 %}
+                    <li class="pre"><a class="pg-btn" href="{{ blog_page_link(current_page_num - 1) }}">Previous</a></li>
+                {% endif %}
+
+
+                {# Need to display page numbers #}
+
+                {# check to see if we need to go back 4 pages #}
+                {% if more_pages == 0 && current_page_num - 4 >= 1 %}{{ render_pagination_link( current_page_num - 4 ) }}{% endif %}
+                {% if more_pages <= 1 && current_page_num - 3 >= 1 %}{{ render_pagination_link( current_page_num - 3 ) }}{% endif %}
+                {% if current_page_num - 2 >= 1 %}{{ render_pagination_link( current_page_num - 2 ) }}{% endif %}
+                {% if current_page_num - 1 >= 1 %}{{ render_pagination_link( current_page_num - 1 ) }}{% endif %}
+
+                {# Render the current page link #}
+                {{ render_pagination_link( current_page_num, 'true' ) }}
+
+                {% if current_page_num + 1 <= total_pages %}{{ render_pagination_link( current_page_num + 1 ) }}{% endif %}
+                {% if current_page_num + 2 <= total_pages %}{{ render_pagination_link( current_page_num + 2 ) }}{% endif %}
+                {% if current_page_num <= 2 && current_page_num + 3 <= total_pages %}{{ render_pagination_link( current_page_num + 3 ) }}{% endif %}
+                {% if current_page_num == 1 && current_page_num + 4 <= total_pages %}{{ render_pagination_link( current_page_num + 4 ) }}{% endif %}
+
+
+                {# Show the next button for all pages except the last page #}
+                {% if current_page_num < total_pages %}
+                    <li class="next"><a class="pg-btn" href="{{ blog_page_link(current_page_num + 1) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
