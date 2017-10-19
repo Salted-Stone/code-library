@@ -1,5 +1,3 @@
-< script src = "https://cdn.jsdelivr.net/g/slidesjs@3.0.4,handlebarsjs@4.0.5" > < /script>
-
 <script>
   function fixheight(needsReset) {
     var newHeight = 0;
@@ -8,7 +6,7 @@
       var that = this;
       /* Variable for later */
 
-      $('> div', that).each(function(index, element) {
+      $('.fix-item', that).each(function(index, element) {
         /* Reset the height so that we can get a good calculation */
         $(this).height('auto');
         /* See if this element is taller than the previous one */
