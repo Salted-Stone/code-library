@@ -1,0 +1,9 @@
+{% set translationTable = {
+	'key'		: 'value'
+} %}
+
+{% for keys in thing %}
+{{ translationTable[keys.value] }}
+{% endfor %}
+
+/* Think of this as a switch case in hubl */
