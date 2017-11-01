@@ -1,0 +1,7 @@
+With ACF and WP 4.8.3 if you are running custom meta queries using:
+
+return str_replace('meta_key = \'event_dates_%', 'meta_key LIKE \'event_dates_%', $where);
+
+this may break/not work. The fix is this:
+
+return preg_replace('/meta_key = \'event_dates_{.*}_/', 'meta_key LIKE \'event_dates_%_', $where);
