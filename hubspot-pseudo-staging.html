@@ -1,0 +1,9 @@
+{% if request.path_and_query is string_containing "preview" %}
+<style>
+    /* Reveal your "staged" content */
+</style>
+{% else %}
+<style>
+    /* Hide your "staged" content */
+</style>
+{% endif %}
