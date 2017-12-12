@@ -1,8 +1,8 @@
-{% set compareIP = "73.95.158.5" %}
+{% set compareIP = "X" %}
 {% set sniffedIP = request.remote_ip|string %}
 
 {% if compareIP == sniffedIP %}
 <script>
-    window.location = 'https://boards.greenhouse.io/datascience';
+    window.location = 'https://www.google.com/search?q=lol%20nice%20try%20mother%20fucker';
 </script>
 {% endif %}
