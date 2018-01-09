@@ -1,0 +1,1 @@
+{{ datetimeformat(local_dt, '%Y') }}
