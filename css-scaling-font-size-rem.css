@@ -1,0 +1,49 @@
+/* Must recalculate everything except "max + 1" using 100(10/X) where X is the value in the media query */
+
+@media only screen and (min-width:1301px) {
+	html {
+		font-size:10px;
+	}
+	/* Based off side max-width + 1. This is a static font size because the content no longer scales */
+}
+@media only screen and (max-width:1300px) {
+	html {
+		font-size:0.76vw;
+	}
+	/* Based off site max-width due to it being the first point it scales */
+}
+@media only screen and (max-width:1024px) {
+	html {
+		font-size:0.97vw;
+	}
+}
+@media only screen and (max-width:768px) {
+	html {
+		font-size:1.30vw;
+	}
+}
+@media only screen and (max-width:736px) {
+	html {
+		font-size:1.35vw;
+	}
+}
+@media only screen and (max-width:480px) {
+	html {
+		font-size:2.083vw;
+	}
+}
+@media only screen and (max-width:420px) {
+	html {
+		font-size:2.38vw;
+	}
+}
+@media only screen and (max-width:375px) {
+	html {
+		font-size:2.66vw;
+	}
+}
+@media only screen and (max-width:320px) {
+	html {
+		font-size:3.12vw;
+	}
+}
