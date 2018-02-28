@@ -21,11 +21,11 @@
 	var filterProp = '';
 	$('#search-button').click( function() {
 	    filterProp = $('#search-field').val();
-	    window.location.href = "{{ company_domain }}/blog/all?search=" + filterProp;
+	    window.location.href = "{{ group.absolute_url }}/all?search=" + filterProp;
 	});
 	$("#search-field").enterKey(function () {
 	    filterProp = $('#search-field').val();
-	    window.location.href = "{{ company_domain }}/blog/all?search=" + filterProp;
+	    window.location.href = "{{ group.absolute_url }}/all?search=" + filterProp;
 	})
 </script>
 
