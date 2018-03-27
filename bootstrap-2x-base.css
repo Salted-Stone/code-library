@@ -1,0 +1,83 @@
+/* Bootstrap 2.X  Basic Layout Engine */
+.columns .column-item {
+	float:left;
+	box-sizing:border-box;
+	position:relative;
+	min-height:1px;
+	margin-left:2.564102564102564%;
+	*margin-left:2.5109110747408616%;
+}
+.columns .column-item:first-child {
+	margin-left:0;
+}
+.columns:after {
+	display:table;
+	content:"";
+	height:0;
+	width:100%;
+	clear:both;
+}
+.column-span-1 {
+	width:5.982905982905983%;
+	*width:5.929714493544281%;
+}
+.column-span-2 {
+	width:14.52991452991453%;
+	*width:14.476723040552828%;
+}
+.column-span-3 {
+	width:23.076923076923077%;
+	*width:23.023731587561375%;
+}
+.column-span-4 {
+	width:31.623931623931625%;
+	*width:31.570740134569924%;
+}
+.column-span-5 {
+	width:40.17094017094017%;
+	*width:40.11774868157847%;
+}
+.column-span-6 {
+	width:48.717948717948715%;
+	*width:48.664757228587014%;
+}
+.column-span-7 {
+	width:57.26495726495726%;
+	*width:57.21176577559556%;
+}
+.column-span-8 {
+	width:65.81196581196582%;
+	*width:65.75877432260411%;
+}
+.column-span-9 {
+	width:74.35897435897436%;
+	*width:74.30578286961266%;
+}
+.column-span-10 {
+	width:82.90598290598291%;
+	*width:82.8527914166212%;
+}
+.column-span-11 {
+	width:91.45299145299145%;
+	*width:91.39979996362975%;
+}
+.column-span-12 {
+	width:100%;
+	*width:99.94680851063829%;
+}
+
+@media only screen and (max-width:767px) {
+
+	/*--------------------
+	  General
+	--------------------*/
+	.columns .column-item {
+		width:auto;
+		float:none;
+		margin-left:0;
+	}
+	.columns .column-item + .column-item {
+		margin-top:30px;
+	}
+
+}
