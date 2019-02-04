@@ -1,0 +1,65 @@
+{# Order styling. This can be made more vague if needed by removing the specific Arabic dialect
+from the declaration below. #}
+{% if request.full_url is containing '/ar-ae/' %}
+    <style>
+        body {
+            direction:rtl;
+        }
+        @media only screen and (min-width:768px) {
+            .row-fluid [class*="span"] {
+                float:right!important;
+            }
+        }
+    </style>
+{% endif %}
+
+{# Variable Menus #}
+<div class="variable-menu-wrapper">
+{% if request.full_url is containing '/ar-ae/' %}
+    {% set curLanguage = 'Arabic - UAE' %}
+	{% menu id=6596907478, overrideable=False %}
+{% else %}
+	{# English Menu / whatever it falls back to #}
+    {% set curLanguage = 'English - US' %}
+	{% menu id=4733722528, overrideable=False %}
+{% endif %}
+    <div id="translate-bar">
+        <div id="trans-toggle">Select Language: {{ curLanguage }} <span class="symbol">/</span></div>
+        <div id="translations">
+            <div id="en-us">English - US</div>
+            <div id="ar-ae">Arabic - UAE</div>
+        </div>
+    </div>
+</div>
+
+{# menu id can be found by selecting the menu and looking at the string of numbers
+at the end of the url after 'navigation':
+https://app.hubspot.com/settings/2322576/website/navigation/4733722528 #}
+
+<script>
+var curLangCode = window.location.pathname.match(/^\/[a-zA-Z]{2}-[a-zA-Z]{2}\/*/);
+function changeSiteLanguage( langCode ) {
+    if( curLangCode ) {
+        newURL = window.location.pathname.replace(curLangCode[0].toLowerCase(), '/'+langCode.toLowerCase()+'/');
+    } else {
+        newURL = '/'+langCode.toLowerCase()+''+window.location.pathname;
+    }
+    window.location.href = newURL;
+}
+if( curLangCode ) {
+	$('body').addClass( curLangCode[0].replace(/\//g, '').toLowerCase() );
+}
+$('#translate-bar').on('click', '#trans-toggle', function() {
+	$('#translations').slideToggle();
+});
+$('#translate-bar').on('click', '#translations div', function() {
+	changeSiteLanguage( $(this).attr('id') );
+});
+$(document).ready( function() {
+	if( curLangCode ) {
+    $('#hs-link-logo').attr( 'href', function() {
+        return this.href + curLangCode[0].replace(/\//g, '').toLowerCase();
+    });
+   	}
+});
+</script>
