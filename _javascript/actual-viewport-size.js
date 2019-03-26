@@ -1,3 +1,4 @@
+// This function will calculate the correct viewport width and height
 function viewport() {
     var e = window, a = 'inner';
     if (!('innerWidth' in window )) {
@@ -6,4 +7,12 @@ function viewport() {
     }
     return { width : e[ a+'Width' ] , height : e[ a+'Height' ] };
 }
-var vpWidth = viewport().width; // This should match your media query
+
+// You can access the width like this
+// This should match your media query
+var vpWidth = viewport().width;
+
+
+// You can access the width like this
+// This should match your media query
+var vpHeight = viewport().height;

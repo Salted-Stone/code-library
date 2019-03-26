@@ -1,4 +1,7 @@
+/* Add this script to the header */
 <script src="http://www.hedviginc.com/hubfs/jquery.cookie.js"></script>
+
+
 <script>
 $(window).load(function(){
   // read cookie on page load
