@@ -9,10 +9,8 @@ function viewport() {
 }
 
 // You can access the width like this
-// This should match your media query
 var vpWidth = viewport().width;
 
 
-// You can access the width like this
-// This should match your media query
+// You can access the height like this
 var vpHeight = viewport().height;
