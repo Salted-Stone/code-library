@@ -1,6 +1,7 @@
 function pageProgress() {
-	var neutralOffset = $(window).height();
-	var percentage =  ( ( $(document).scrollTop() + neutralOffset )/$(document).height() ) * 100;
+	var neutralOffset 	= $(window).height();
+	var maxHeight		= $(document).height()
+	var percentage 		= (($(document).scrollTop() + neutralOffset)/maxHeight) * 100;
 	$('#progress-bar').css('width', percentage + '%');
 }
 
