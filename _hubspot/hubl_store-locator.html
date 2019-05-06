@@ -1,0 +1,293 @@
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAb5n-K5gdE5FRVBVF_ZSFnceugkXck4_c&libraries=places&callback=checkGeoLocation" async defer></script>
+<div class="fabricatorLocatorWrapper">
+
+	<div class="searchBox">
+		<input type="text" id="addressLookup" placeholder="Enter address, city and state, or zip code" />
+	    <span class="text">within</span>
+	    <select id="radius">
+			<option value="10">10 mi</option>
+			<option value="25">25 mi</option>
+			<option value="50">50 mi</option>
+			<option value="75">75 mi</option>
+			<option value="100">100 mi</option>
+			<option value="250">250 mi</option>
+			<option value="500">500 mi</option>
+	    </select>
+		<select id="brandSelect"></select>
+		<div class="search-button">
+		    <input type="button" value="Search" id="beginSearch" />
+		</div>
+	</div>
+
+	<div class="resultsWrapper">
+		<ul id="resultsList"></ul>
+		<div id="resultsMap"></div>
+	</div>
+
+</div>
+{% raw %}
+<script type="text/x-template" id="resultsListing">
+	<li>
+		<div class="resultNum"><span>{{resultNum}}</span></div>
+		<h3>{{store_name}}</h3>
+		<div class="addressBlock">
+			{{street_1}}{{#if street_2}}, {{street_2}}{{/if}}<br />
+			{{city}}, {{state}} {{zip}}<br />
+			{{formatPhone phone}}
+		</div>
+		<div class="distanceBlock">
+			Distance: {{distance}} mi. <a href="https://www.google.com/maps/dir/Current+Location/{{street_1}}{{#if street_2}}, {{street_2}}{{/if}} {{city}} {{state}} {{zip}}" target="_blank">Get Directions</a>
+		</div>
+	</li>
+</script>
+<script type="text/x-template" id="infoWindowTemplate">
+	<div class="infoWindowWrap">
+		<h3>{{store_name}}</h3>
+		<div class="addressBlock">
+			{{street_1}}{{#if street_2}}, {{street_2}}{{/if}}<br />
+			{{city}}, {{state}} {{zip}}<br />
+			{{formatPhone phone}}
+		</div>
+	</div>
+</script>
+{% endraw %}
+<script>
+
+	Handlebars.registerHelper('formatPhone', function( phone ) {
+		return phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+	});
+
+    Math.radians = function( degrees ) {
+        return degrees * Math.PI / 180;
+    };
+
+	function sortDistance(a, b) {
+		return( a.distance < b.distance ) ? -1 : ( a.distance > b.distance ) ? 1 : 0
+	}
+
+	$.fn.replaceOptions=function(t){var n,e;this.empty(),n=this,$.each(t,function(t,a){e=$("<option></option>").attr("value",a).html(a),n.append(e)});return this};
+
+    var locations = [];
+    {% for row in hubdb_table_rows( widget.hubdb_table_id ) %}
+        locations.push({
+            "store_name": "{{ row.store_name }}",
+            "street_1": "{{ row.street_1 }}",
+            "street_2": "{{ row.street_2 }}",
+            "city": "{{ row.city }}",
+            "state": "{{ row.state }}",
+            "zip": "{{ row.zip }}",
+            "phone": "{%if row.phone %}{{ row.phone }}{% else %}{{ row.phone_number }}{% endif %}",
+            "location": {
+                "lat": "{{ row.location.lat }}",
+                "lng": "{{ row.location.lon }}"
+            },
+			"brands": [{% for brand in row.brands %}
+				"{{ brand.name }}"{% unless loop.last %},{% endunless %}
+			{% endfor %}]
+        });
+    {% endfor %}
+
+	var map;
+	var infoWindow;
+	var autoComplete;
+	var markers = [];
+	var isUsingPlace = false;
+	var resultsListingTemplate = Handlebars.compile($('#resultsListing').html());
+	var infowindowTemplate = Handlebars.compile($('#infoWindowTemplate').html())
+	var mapCenter = {"lat": 38.669767, "lng": -97.4809889};
+	var theBrands = [];
+
+
+	// Lets fill in the brand drop down shall we...
+	$.each(locations, function(i, v) {
+		$.each(v.brands, function(k, brand) {
+			if( $.inArray(brand, theBrands) < 0 ) {
+				theBrands.push(brand);
+			}
+		});
+	});
+
+	if( theBrands.length >= 1 ) {
+		theBrands.sort((a, b) => a.localeCompare(b));
+		theBrands.unshift("All Brands");
+		$("#brandSelect").replaceOptions(theBrands);
+		$('.searchBox').addClass('hasBrands');
+	}
+
+	function checkGeoLocation() {
+
+		var options = {
+			enableHighAccuracy: true,
+			timeout: 3000,
+			maximumAge: 0
+		};
+
+		// Lets check for geolocation
+		if( navigator.geolocation ) {
+
+			navigator.geolocation.getCurrentPosition( function( position ) {
+
+				var lat = position.coords.latitude;
+				var lng = position.coords.longitude;
+
+				mapCenter = new google.maps.LatLng( lat, lng );
+
+				mapInit();
+				searchForLocations( lat, lng, true );
+
+			}, function( error ) {
+				// failed to get geolocation
+				mapInit();
+				searchForLocations( mapCenter.lat, mapCenter.lng, true );
+			}, options);
+
+		} else {
+			// Could not find geolocation info
+			mapInit();
+			searchForLocations( mapCenter.lat, mapCenter.lng );
+		}
+
+	}
+
+	function mapInit() {
+
+		infoWindow = new google.maps.InfoWindow();
+
+		map = new google.maps.Map( document.getElementById('resultsMap'), {
+			"scrollwheel": false,
+			"zoom": 4,
+			"center": mapCenter
+		});
+
+		autoComplete = new google.maps.places.Autocomplete( document.getElementById('addressLookup'), {
+			"componentRestrictions": {"country": "us"}
+		});
+
+		places = new google.maps.places.PlacesService(map);
+
+		autoComplete.addListener('place_changed', function() { isUsingPlace = true; });
+
+		// Lets start up the event listener for the search button
+		$('.fabricatorLocatorWrapper').on('click', '#beginSearch', setLatLng);
+		$('#addressLookup').on('keypress', function() { isUsingPlace = false; });
+
+	}
+
+	function setLatLng() {
+
+		var theAddress = $('#addressLookup').val();
+		var thePlace = autoComplete.getPlace();
+
+		// Some sanity checking
+		if( theAddress === '' ) return;
+
+		if( isUsingPlace ) {
+
+			searchForLocations( thePlace.geometry.location.lat(), thePlace.geometry.location.lng() );
+
+		} else {
+
+			// do a google lookup
+			$.getJSON('https://maps.googleapis.com/maps/api/geocode/json?address='+theAddress+'&key=AIzaSyAb5n-K5gdE5FRVBVF_ZSFnceugkXck4_c', function( obj ) {
+				if( obj.results[0].geometry.location ) {
+
+					var geometry = obj.results[0].geometry.location;
+					searchForLocations( geometry.lat, geometry.lng );
+
+				}
+			});
+
+		}
+
+	}
+
+	function searchForLocations( lat, lng, displayAll ) {
+
+		var results	= [];
+		var radius	= $('#radius').val();
+		var brand	= $('#brandSelect').val();
+
+		$.each(locations, function(i, v) {
+
+			var distance = ( 3959 * Math.acos( Math.cos( Math.radians(lat) ) * Math.cos( Math.radians( v.location.lat ) ) * Math.cos( Math.radians( v.location.lng ) - Math.radians(lng) ) + Math.sin( Math.radians(lat) ) * Math.sin( Math.radians( v.location.lat ) ) ) );
+
+			if( distance <= radius || displayAll ) {
+				if( brand != 'All Brands' && brand != null && $.inArray(brand, v.brands) < 0 ) {
+					return;
+				}
+
+				results.push( $.extend(v, {
+					"distance": ( distance < 10 ) ? distance.toFixed(2) : Math.round(distance)
+				}));
+			}
+
+		});
+
+		results.sort(sortDistance);
+
+
+		centerMap(lat, lng);
+		renderResults( results );
+
+	}
+
+	function centerMap( lat, lng ) {
+		map.setCenter(new google.maps.LatLng(lat, lng));
+	}
+
+	function renderResults( results ) {
+
+		clearMarkers();
+
+		$('#resultsList').html( ( results.length < 1 ) ? '<span class="resultsErrorMsg">Sorry, but there are no results for that search. Please try a larger/different search area.</span>' : '' );
+
+		$.each(results, function(i, v) {
+			var options = $.extend(v, {"resultNum": i+1});
+			$('#resultsList').append( resultsListingTemplate( options ) );
+			addMarker( options );
+		});
+
+	}
+
+	function clearMarkers() {
+
+		if( markers.length >= 1 ) {
+			infoWindow.close();
+			for( var i = 0; i < markers.length; i++ ) {
+				markers[i].setMap(null);
+			}
+
+			markers.length = 0;
+		}
+	}
+
+	function addMarker( obj ) {
+
+		var marker = new google.maps.Marker({
+			"map": map,
+			"position": new google.maps.LatLng( obj.location.lat, obj.location.lng ),
+			"label": {
+				"text": obj.resultNum.toString(),
+				"color": "#fff",
+				"fontWeight": "bold"
+			},
+			"icon": {
+				//"url":		"https://cdn2.hubspot.net/hubfs/98736/Strataglass/map-icon.png",
+				"url":		"https://cdn2.hubspot.net/hubfs/98736/Strataglass/Backgrounds/map-icon@2x.png",
+				//"size":		new google.maps.Size(27, 27),
+				"scaledSize": new google.maps.Size(27, 27), // scaled size
+				"origin":	new google.maps.Point(0,-1),
+				"anchor":	new google.maps.Point(14, 13)
+			}
+		});
+
+		google.maps.event.addListener(marker, 'click', function() {
+			infoWindow.setContent( infowindowTemplate( obj ) );
+			infoWindow.open(map, marker);
+		});
+
+		markers.push(marker);
+
+	}
+
+</script>
