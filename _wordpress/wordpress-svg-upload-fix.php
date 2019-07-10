@@ -31,3 +31,36 @@ function fix_svg() {
         </style>';
 }
 add_action( 'admin_head', 'fix_svg' );
+
+/* Alternate */
+function cc_mime_types( $mimes ){
+    $mimes['svg'] = 'image/svg+xml';
+    return $mimes;
+}
+add_filter( 'upload_mimes', 'cc_mime_types' );
+
+function fix_svg() {
+    echo '
+    <style type="text/css">
+        .attachment-266x266,
+        .thumbnail img,
+        td.media-icon img[src$=".svg"],
+        img[src$=".svg"].attachment-post-thumbnail,
+        img[src$=".svg"].attachment-thumbnail {
+            width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            var thatSvgEle = $("img[src$=\'svg\'].attachment-post-thumbnail");
+            if( thatSvgEle.length ) {
+                thatSvgEle.each(function() {
+                    $(this).parent("#set-post-thumbnail").css({"width": "100%"})
+                })
+            }
+        })
+    </script>
+    ';
+}
+add_action( 'admin_head', 'fix_svg' );
