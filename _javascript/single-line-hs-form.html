@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+	<head>
+		<!--[if lte IE 8]>
+		<script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2-legacy.js"></script>
+		<![endif]-->
+		<script charset="utf-8" type="text/javascript" src="https://js.hsforms.net/forms/v2.js"></script>
+
+		<script>
+
+			const coolFormThing = options => {
+
+				let collection	= []
+				let attachedIds	= []
+				const $					= (selector, ele = document) => {
+					ele = ( typeof ele === 'string' && ele != document ) ? $(ele)[0] : ele
+					return ele.querySelectorAll( selector )
+				}
+				const hideEle			= ele => { ele.style.display = "none"; }
+				const showEle			= ele => { ele.style.display = "block"; }
+				const validEmail		= a => { var b=/^([\w-\.\+]+@([\w-]+\.)+[\w-]{2,4})?$/;if(!b.test(a)){return false}else{return true} }
+				const attachListeners	= (formId, parentEle) => {
+
+					const formWrapper	= $('form[id^="hsForm_'+formId+'"]', parentEle)[0]
+					const nodes			= $('form[id^="hsForm_'+formId+'"] > div', parentEle)
+
+					nodes.forEach((cv, ci) => {
+
+						const nextIndex	= ci + 1
+						const input		= cv.querySelector('input')
+						const inputType	= input.getAttribute('type')
+						const isLastEle	= () => nextIndex + 1 === nodes.length
+
+						// Hide all but the first one...
+						if( ci > 0 ) { hideEle( cv ); }
+						// Skip adding listeners to the submit button...
+						if( nextIndex >= nodes.length ) { return; }
+
+
+						const canMoveOn	= e => {
+							const currentValue = input.value
+							let isGood = true
+
+							if( currentValue === "" ) {
+								isGood = false
+							}
+
+							// Allow for more flexibility later for additional validation...
+							switch( inputType ) {
+								case 'email':
+									if( !validEmail(currentValue) ) {
+										isGood = false
+									}
+								break;
+							}
+
+							if( isGood && (e.key === 'Enter' || e.key === 'Tab' || e.type === 'click') ) {
+
+								if( !isLastEle() ) {
+									hideEle( cv )
+									showEle( nodes[ nextIndex ] )
+								} else {
+
+									// Double check the element...
+									if( e.target.classList.contains( 'submit' ) ) {
+										formWrapper.submit()
+									}
+
+								}
+
+							}
+						}
+
+
+						if( options.nextBtn ) {
+
+							let nextClassNames	= ['coolFormThingNext']
+							let btnValue		= options.nextBtn
+
+							if( options.nextClass ) {
+								nextClassNames.push( options.nextClass )
+							}
+
+							if( isLastEle() ) {
+								nextClassNames.push( 'submit' )
+								btnValue = options.submitBtn || 'Submit'
+							}
+
+							if( $('.input', cv).length ) {
+								$('.input', cv)[0].insertAdjacentHTML( 'beforeend', '<div class="'+nextClassNames.join(' ')+'">'+btnValue+'</div>' )
+								$('.'+nextClassNames[0], cv)[0].addEventListener('click', canMoveOn)
+							}
+						}
+
+						// Prevent "Enter" and "Tab" from working...
+						input.addEventListener('keydown', e => {
+							if( e.key === 'Enter' || e.key === 'Tab' ) {
+								e.preventDefault()
+								return false
+							}
+						})
+
+						// Lets run some validation...
+						input.addEventListener('keyup', canMoveOn)
+
+					})
+
+				}
+
+				return {
+					addForm: (formId, parentEle = document) => {
+
+						collection.push({
+							'formId': formId,
+							'parent': parentEle
+						})
+
+					},
+					start: () => {
+						window.addEventListener('message', e => {
+							// make sure we are only listeing to HS events...
+							if (e.data.type === 'hsFormCallback' && e.data.eventName === 'onFormReady' ) {
+
+								if( attachedIds.indexOf( e.data.id ) >= 0 ) return;
+								attachedIds.push( e.data.id )
+
+								collection.map( obj => {
+									if( obj.formId === e.data.id ) {
+										attachListeners( obj.formId, obj.parent )
+									}
+								})
+							}
+						})
+					}
+				}
+
+			}
+
+			let thingie = coolFormThing({
+				'nextBtn': 'Next',
+				'nextClass': 'multi-step-next',
+				'submitBtn': 'Submit'
+			})
+			thingie.addForm('9bf444be-7c46-49b0-bceb-557192babf28', '#testers')
+			thingie.addForm('9bf444be-7c46-49b0-bceb-557192babf28', '#testers_2')
+			thingie.start()
+
+		</script>
+
+
+
+	</head>
+	<body>
+		<div id="testers">
+			<script>
+				hbspt.forms.create({
+				  portalId: "2163007",
+				  formId: "9bf444be-7c46-49b0-bceb-557192babf28",
+				  css: ""
+			  });
+			</script>
+		</div>
+		<div id="testers_2">
+			<script>
+				hbspt.forms.create({
+				  portalId: "2163007",
+				  formId: "9bf444be-7c46-49b0-bceb-557192babf28",
+				  css: ""
+			  });
+			</script>
+		</div>
+
+	</body>
+</html>
