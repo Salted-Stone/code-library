@@ -1,0 +1,252 @@
+<div class="blog-section">
+	<div class="blog-listing-wrapper cell-wrapper">
+		<div class="page-center">
+			<div class="blog-listing-wrapper cell-wrapper resources">
+
+				{# simple_list_page indicates the "blog/all" page, which is a list of links to every blog post #}
+
+				<div class="resources--filter">
+					<form>
+						<span class="filter-name">Filter by</span>
+						<select class="tag">
+							<option selected="selected" value="">- Tag -</option>
+						</select>
+						<select class="type">
+							<option selected="selected" value="">- Content Type -</option>
+						</select>
+						<span class="adv-search">Advanced Search</span>
+						<div class="adv-search-wrap">
+							<input type="text" placeholder="- Search -" class="quicksearch">
+							<select class="authorsearch">
+								<option value="">- Author -</option>
+							</select>
+						</div>
+					</form>
+				</div>
+
+				<div class="resources--list post-listing{% if simple_list_page %}-simple{% endif %}"></div>
+
+				<span class="cta cta-primary" id="load-more">Load More</span>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+{% raw %}
+<script type="text/x-template" id="listing-template">
+	{{#each posts}}
+	<div class="resources-list--item">
+		<div class="resources-list--img">
+			<img src="{{ img.src }}" alt="{{ img.alt }}">
+		</div>
+		<div class="resources-list--content">
+			<div class="resources-list--header">
+				<h3>
+					<a href="{{ link }}">{{ title }}</a>
+				</h3>
+			</div>
+			<div class="resources-list--author">
+				<a href="{{ author.link }}">{{ author.name }}</a>
+			</div>
+			<a class="cta cta-arr-orange" href="{{ link }}">Read More</a>
+		</div>
+	</div>
+	{{else}}
+	<p>Sorry, nothing matches those filters</p>
+	{{/each}}
+</script>
+{% endraw %}
+
+<script src="https://unpkg.com/handlebars@4.1.2/dist/handlebars.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.4/polyfill.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel" data-presets="es2015">
+
+	const thePosts = [{% for content in contents %}
+		{
+			"author": {
+				"link": "{{ blog_author_url(group.id, content.blog_post_author.slug)|default('')|escapejson }}",
+				"name": "{{ content.blog_author|default('')|escapejson }}"
+			},
+			"img": {
+				"src": "{{ content.featured_image|default('')|escapejson }}",
+				"alt": "{{ content.name|default('')|escapejson }}"
+			},
+			"link": "{{ content.absolute_url|default('')|escapejson }}",
+			"title": "{{ content.name|default('')|striptags|truncate(55, '...')|escapejson }}",
+			"type": "{{ content.widgets.resource_type.body.value|default('')|escapejson }}",
+			"tags": ["{{ content.topic_list|join('", "') }}"]
+		}{% unless loop.last %},{% endunless %}
+	{% endfor %}]
+
+	const filterSetup = ( options = {} ) => {
+
+		const defaults = Object.assign({
+			'initial_display': 3,
+			'load_more': 3
+		}, options)
+
+		let filteredPosts			= []
+		const get_elem				= selector => document.querySelector( selector )
+		const listing_template		= Handlebars.compile( get_elem('#listing-template').innerHTML )
+		const get_filter_value		= name => {
+			let ele = get_elem('select.'+name) || get_elem('input.'+name)
+			return ele.value
+		}
+
+
+
+		const append_select = (options, selector) => {
+			options.sort().map( v => {
+				let option = document.createElement('option')
+				option.text = option.value = v
+				get_elem( selector ).appendChild( option )
+			})
+		}
+
+		const setup_filters = () => {
+
+			let filterVars = {
+				'tags': [],
+				'types': [],
+				'authors': []
+			}
+
+			thePosts.map( v => {
+
+				v.tags.map( ( t ) => {
+					if( t.length && filterVars.tags.indexOf( t ) === -1 && t != 'featured' ) {
+						filterVars.tags.push( t )
+					}
+				})
+
+				if( v.type.length && filterVars.types.indexOf( v.type ) === -1 ) {
+					filterVars.types.push( v.type )
+				}
+
+				if( v.author.name && filterVars.authors.indexOf( v.author.name ) === -1 ) {
+					filterVars.authors.push( v.author.name )
+				}
+
+			})
+
+			append_select( filterVars.tags, '.resources--filter select.tag' )
+			append_select( filterVars.types, '.resources--filter select.type' )
+			append_select( filterVars.authors, '.resources--filter select.authorsearch' )
+
+		}
+
+		const filter_posts	= () => {
+			const tag		= get_filter_value('tag')
+			const type		= get_filter_value('type')
+			const qs		= get_filter_value('quicksearch')
+			const author	= get_filter_value('authorsearch')
+
+			filteredPosts = thePosts.filter( post => {
+
+				if( tag && post.tags.indexOf( tag ) === -1 ) { return false; }
+				if( type && post.type != type ) { return false; }
+
+				if( qs ) {
+					let regex = new RegExp( qs, 'ig' )
+					if( !regex.test( post.title ) ) { return false; }
+				}
+
+				if( author && post.author.name != author ) { return false; }
+
+				return true
+
+			})
+
+			display_posts( true )
+
+		}
+
+		const display_posts = ( showInitial = false ) => {
+
+			let listingWrap	= get_elem('div.resources--list')
+			let nextDisplay	= showInitial ? defaults.initial_display : defaults.load_more
+			let thatHTML	= listing_template({
+				posts: filteredPosts.splice( 0, nextDisplay )
+			})
+
+			if( showInitial ) {
+				listingWrap.innerHTML = thatHTML
+			} else {
+				listingWrap.insertAdjacentHTML('beforeend', thatHTML)
+			}
+
+			if( filteredPosts.length < 1 ) {
+				// hide load more btn...
+				get_elem('#load-more').style.display = 'none'
+			} else {
+				// show load more btn...
+				get_elem('#load-more').style.display = 'block'
+			}
+
+		}
+
+		const hookup_listeners = () => {
+
+			let keyup_timer = null
+
+			// Need to hook up event listeners...
+			get_elem('.resources--filter select.tag').addEventListener('change', e => {
+				filter_posts()
+			})
+
+			get_elem('.resources--filter select.type').addEventListener('change', e => {
+				filter_posts()
+			})
+
+			get_elem('.resources--filter select.authorsearch').addEventListener('change', e => {
+				filter_posts()
+			})
+
+			get_elem('.resources--filter .adv-search').addEventListener('click', e => {
+
+				let adv_wrap = get_elem('.resources--filter .adv-search-wrap')
+
+				if( adv_wrap.style.display == 'block' ) { adv_wrap.style.display = 'none'; }
+				else { adv_wrap.style.display = 'block'; }
+
+			})
+
+			get_elem('.resources--filter input.quicksearch').addEventListener('keyup', e => {
+
+				clearTimeout( keyup_timer )
+
+				keyup_timer = setTimeout( () => {
+					filter_posts()
+				}, 300)
+
+			})
+
+			get_elem('#load-more').addEventListener('click', e => {
+				display_posts()
+			})
+
+		}
+
+
+		return {
+			init: () => {
+
+				setup_filters()
+				filter_posts()
+				hookup_listeners()
+
+			}
+		}
+	}
+
+
+	// Lets display the initial posts...
+	filterSetup({
+		'initial_display': 2,
+		'load_more': 1
+	}).init()
+
+</script>
