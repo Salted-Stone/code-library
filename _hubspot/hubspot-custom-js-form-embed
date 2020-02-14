@@ -6,6 +6,7 @@
 <script>
 	hbspt.forms.create({
 	    portalId: '{{ hub_id }}',
+		target: '#hs_form_target_form_{{ module.form_field_module_name_please_replace.form_id }}',
 	    formId: '{{ module.form_field_module_name_please_replace.form_id }}',
 	    css: '',
 	{% if module.form_field_module_name_please_replace.response_type == 'inline' %}
