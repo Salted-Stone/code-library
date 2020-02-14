@@ -1,0 +1,26 @@
+<div id="hs_form_target_form_{{ module.form_field_module_name_please_replace.form_id }}"></div>
+<!--[if lte IE 8]>
+<script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2-legacy.js"></script>
+<![endif]-->
+<script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/v2.js"></script>
+<script>
+	hbspt.forms.create({
+	    portalId: '{{ hub_id }}',
+	    formId: '{{ module.form_field_module_name_please_replace.form_id }}',
+	    css: '',
+	{% if module.form_field_module_name_please_replace.response_type == 'inline' %}
+	    inlineMessage: '{{ module.form_field_module_name_please_replace.message|escapejson }}',
+	{% else if module.form_field_module_name_please_replace.response_type == 'redirect' %}
+	    {% if module.form_field_module_name_please_replace.redirect_id %}
+	    redirectUrl: '{{ content_by_id(module.form_field_module_name_please_replace.redirect_id).absolute_url|escapejson }}',
+	    {% else %}
+	    redirectUrl: '{{ module.form_field_module_name_please_replace.redirect_url|escapejson }}',
+	    {% endif %}
+	{% endif %}
+	{% if module.form_submission_code_field_name_please_replace %}
+	    onFormSubmit: function($form) {
+	      {{ module.form_submission_code_field_name_please_replace }}
+	    }
+	{% endif %}
+	});
+</script>
