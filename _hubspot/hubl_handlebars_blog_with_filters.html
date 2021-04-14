@@ -1,0 +1,149 @@
+{% raw %}
+<script type="text/x-template" id="post-template">
+    <div class="post-item inline-block va-top">
+
+      <div class="featured-image">
+        <a href="{{ url }}" style="background-image: url({{ featuredImage }});"></a>
+      </div>
+
+      <div class="post-details">
+        <div class="inner">
+
+
+          <h2 class="post-title">
+            <a class="c-dark-gray" href="{{ url }}">{{ title }}</a>
+          </h2>
+          <div class="post-author">
+            By <a href="{{ authorSlug }}">{{ authorName }}</a>
+          </div>
+
+      </div>
+    </div>
+  </div>
+</script>
+{% endraw %} {# Get all posts from all blogs and put into JSON #} {% set
+blog_one_posts = blog_recent_posts('default', 250) %} {% set blog_two_posts =
+blog_recent_posts('10664889011', 250 ) %} {# Agronomy #} {% set blog_three_posts
+= blog_recent_posts('10726125367', 250 ) %} {# Inputs #} {% set blog_four_posts
+= blog_recent_posts('10726240739', 250 ) %} {# Profitability #} {% set
+blog_five_posts = blog_recent_posts('10726125368', 250 ) %} {# Farm & Rural
+Issues #} {% set all_posts = (blog_one_posts + blog_two_posts + blog_three_posts
++ blog_four_posts + blog_five_posts) | sort(true, false, 'publish_date') %}
+
+<script>
+  var post_array = [];
+  {% for content in all_posts %}
+    post_array.push({
+      "title"				: "{{ content.name|escapejson }}",
+      "url"				: "{{ content.absolute_url|escapejson }}",
+      "featuredImage"		: "{{ content.post_list_summary_featured_image|escapejson }}",
+      "featuredImageAlt"	: "{{ content.featured_image_alt_text|escapejson }}",
+      "categories"		: [{% for tag in content.tag_list %}
+      "{{ tag.slug|escapejson }}"{% unless loop.last %},{% endunless %}
+      {% endfor %}],
+      "authorName" : "{{ content.blog_post_author.display_name|escapejson }}",
+      "authorSlug" : "{{ content.blog_post_author.slug|escapejson }}"
+    });
+  {% endfor %}
+</script>
+
+<script>
+  $(document).ready(function () {
+    var incrementingPosts = 6;
+    var postItemCounter = 6;
+    var template = Handlebars.compile($("#post-template").html());
+
+    function renderPosts() {
+      // get selected filters
+      var topic = $(".filters #topics").val();
+      var type = $(".filters #type").val();
+
+      $(".posts-container").html(""); // clear posts container
+
+      // filter
+      $.each(post_array, function (i, v) {
+        if (topic && !v.categories.includes(topic)) {
+          return;
+        }
+        if (type && !v.categories.includes(type)) {
+          return;
+        }
+
+        $(".posts-container").append(template(v));
+      });
+    }
+
+    function loadMore() {
+      $(".post-item").slice(0, postItemCounter).css("display", "inline-block");
+
+      if ($(".post-item").length <= postItemCounter) {
+        $(".load-more").hide();
+      }
+    }
+
+    $(".filters select").on("change", function () {
+      renderPosts();
+      loadMore();
+    });
+
+    $(".load-more .button").on("click", function (e) {
+      postItemCounter += incrementingPosts;
+      loadMore();
+    });
+
+    /* Initial Page Load */
+    renderPosts();
+    loadMore();
+  });
+</script>
+
+
+/*
+* HTML / HubL
+*/
+<div class="filters d-flex">
+    {% set types = ["Case Study", "DDC News", "Industry Report", "Guide", "Tool"] %}
+    
+    <select id="topics">
+      <option selected="selected" value="">Topics</option>
+      {% set my_topics = blog_topics(group.id, 500) %}
+        {% for item in my_topics %}
+        {% if item in types %}
+        {% else %}
+          <option value="{{ item }}">{{ item }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+   
+    <select id="type">
+      <option selected="selected" value="">Type</option>
+      {% for type in types %}
+        <option value="{{ type }}">{{ type }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<div class="posts-container row">
+  {# Get all posts from all blog and put into array of objects #}
+  <script>
+    var post_array = [];
+    {% for content in contents %}
+    post_array.push({
+      "title"				: "{{ content.name|escapejson }}",
+      "url"				: "{{ content.widgets.custom_link.body.value|escapejson }}",
+      "featuredImage"		: "{{ content.post_list_summary_featured_image|escapejson }}",
+      "featuredImageAlt"	: "{{ content.featured_image_alt_text|escapejson }}",
+      "categories"		: [{% for tag in content.tag_list|reverse %}
+      "{{ tag.name|escapejson }}"{% unless loop.last %},{% endunless %}
+      {% endfor %}],
+      "authorName" : "{{ content.blog_post_author.display_name|escapejson }}",
+      "authorSlug" : "{{ content.blog_post_author.slug|escapejson }}"
+    });
+    {% endfor %}
+  </script>
+</div>
+
+<div class="load-more text-center mt-5">
+  <span class="button button--secondary button--secondary--imperialRed cta">Load More</span>
+</div>
