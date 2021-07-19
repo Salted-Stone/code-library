@@ -1,0 +1,3 @@
+{% set agent = request.headers['user-agent']|lower|string %} {% set is_mobile =
+false %} {% if agent is string_containing "mobile" %} {% set is_mobile = true %}
+{% endif %}
